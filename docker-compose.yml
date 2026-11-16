@@ -1,0 +1,81 @@
+# =============================================================================
+#  The Road So Far — API (NestJS) + MySQL para desenvolvimento local
+#
+#    docker compose up -d db        # só o MySQL (127.0.0.1:3302) — rode a API com npm run start:dev
+#    docker compose up -d           # MySQL + API em container (http://localhost:3001)
+#    docker compose logs -f api
+#    docker compose down            # para (os dados continuam no volume)
+#    docker compose down -v         # para e APAGA o banco
+#
+#  DBeaver: host 127.0.0.1 · porta 3302 · banco theroadsofar · trsf_user / trsf9180
+#           Driver properties: allowPublicKeyRetrieval=true, useSSL=false
+#
+#  Só para desenvolvimento. Em produção (Hostinger) use o MySQL do painel — veja DEPLOY.md.
+# =============================================================================
+
+# Mesmo nome de projeto da versão antiga (pasta theroadsofar): o Docker reaproveita
+# o volume do banco que você já tem (theroadsofar_db_data) — nenhum dado se perde.
+name: theroadsofar
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: trsf_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-trsf9180}
+      MYSQL_DATABASE: ${DB_NAME:-theroadsofar}
+      MYSQL_USER: ${DB_USER:-trsf_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-trsf9180}
+    ports:
+      - "127.0.0.1:3302:3306"   # apenas localhost — nunca expor externamente
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+      --innodb-buffer-pool-size=256M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-trsf9180}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks: [trsf_net]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: trsf_api
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      NODE_ENV: development
+      UPLOAD_DIR: /app/uploads
+      DB_HOST: db
+      DB_PORT: 3306                        # porta INTERNA do container (a 3302 é só no seu PC)
+      DB_NAME: ${DB_NAME:-theroadsofar}
+      DB_USERNAME: ${DB_USER:-trsf_user}
+      DB_PASSWORD: ${DB_PASSWORD:-trsf9180}
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - ./src:/app/src:ro                  # hot-reload
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [trsf_net]
+    command: ["npm", "run", "start:dev"]
+
+volumes:
+  db_data:
+  uploads_data:
+
+networks:
+  trsf_net:
+    driver: bridge
