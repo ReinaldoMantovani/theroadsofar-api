@@ -49,11 +49,23 @@ RewriteRule ^(.*)$ http://127.0.0.1:3001/$1 [P,L]
 
 Os arquivos enviados são servidos pela própria API em `/uploads` — não é preciso configurar nada a mais.
 
-### Alternativa: app Node.js do hPanel
+### Alternativa: app Node.js do hPanel (deploy pelo GitHub)
 
-Em **Sites › Node.js** (quando disponível no seu plano): pasta da aplicação = esta pasta,
-comando de build `npm ci && npm run build`, arquivo de entrada `dist/main.js`, e as variáveis do `.env`
-cadastradas no painel. Depois rode `npm run migration:run` pelo SSH.
+Em **Sites › Node.js** › importar do GitHub, use:
+
+| Campo | Valor |
+|---|---|
+| Node.js | **20** ou **22** (22 se disponível) |
+| Build command | `npm run build` |
+| Output directory | `dist` |
+| Entry file | `index.js` (ou `main.js` — os dois existem em `dist/`) |
+| Variáveis | as do `.env.production.example`, cadastradas no painel |
+
+A Hostinger instala as dependências com `NODE_ENV=production`, o que pula as ferramentas de compilação.
+O script `prebuild` (`scripts/ensure-build-deps.cjs`) detecta isso e instala o que falta antes do `nest build` —
+sem ele aparece `sh: nest: command not found`.
+
+Depois do primeiro deploy, rode as migrações pelo SSH, na pasta da aplicação: `npm run migration:run`.
 
 ## 2. Atualizações
 
@@ -86,6 +98,15 @@ CORS_ORIGINS=https://theroadsofar.com.br,https://www.theroadsofar.com.br,http://
 npm run migration:revert                                         # desfaz a última migração
 mysql -u u123456789_trsf -p u123456789_theroadsofar < ~/backup-AAAA-MM-DD.sql   # volta o backup
 ```
+
+## Erros comuns no build
+
+| Mensagem | Causa e solução |
+|---|---|
+| `sh: nest: command not found` | dependências instaladas sem as devDependencies. Esta versão já resolve no `prebuild`; em versões antigas, use o build command `npm install --include=dev && npm run build` |
+| `EBADENGINE ... sanitize-html ... node >=22.12.0` | versão nova do sanitize-html exige Node 22. Esta versão fixa a 2.17.5, que roda no Node 20 |
+| `Unable to connect to the database` | `DB_HOST`/`DB_NAME`/`DB_USERNAME`/`DB_PASSWORD` errados (lembre do prefixo `u123456789_`; porta **3306**) |
+| `Cannot find module .../index.js` | entry file errado: use `index.js` ou `main.js` com output `dist` |
 
 ## DBeaver no banco de produção
 

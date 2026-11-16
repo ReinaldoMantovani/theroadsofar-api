@@ -1,15 +1,10 @@
 {
   "name": "theroadsofar-api",
   "version": "1.0.0",
-  "private": true,
   "description": "The Road So Far — API NestJS",
-  "license": "UNLICENSED",
   "author": "The Road So Far",
-  "type": "commonjs",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
+  "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -29,7 +24,8 @@
     "migration:revert:dev": "typeorm-ts-node-commonjs migration:revert -d src/config/typeorm.config.ts",
     "migration:show:dev": "typeorm-ts-node-commonjs migration:show -d src/config/typeorm.config.ts",
     "type-check": "tsc --noEmit",
-    "migration:show": "typeorm migration:show -d dist/config/typeorm.config.js"
+    "migration:show": "typeorm migration:show -d dist/config/typeorm.config.js",
+    "prebuild": "node scripts/ensure-build-deps.cjs"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
@@ -51,7 +47,7 @@
     "bcrypt": "^5.1.1",
     "class-validator": "^0.14.1",
     "class-transformer": "^0.5.1",
-    "sanitize-html": "^2.12.1",
+    "sanitize-html": "2.17.5",
     "slugify": "^1.6.6",
     "multer": "^1.4.5-lts.1",
     "sharp": "^0.33.3",
@@ -92,9 +88,6 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"
   },
-  "engines": {
-    "node": ">=20"
-  },
   "jest": {
     "moduleFileExtensions": [
       "js",
@@ -111,5 +104,9 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "dist/main.js"
 }
