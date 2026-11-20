@@ -3,9 +3,6 @@
 API REST do blog **The Road So Far** em **NestJS 10 + TypeORM + MySQL 8**.
 Atende o blog público (`theroadsofar-web`) e o estúdio editorial que roda no seu PC (`theroadsofar-admin`).
 
-- Produção: `https://api.theroadsofar.com.br/api/v1`
-- Deploy na Hostinger: [DEPLOY.md](./DEPLOY.md)
-- Segurança e LGPD: [SECURITY.md](./SECURITY.md) · [LGPD.md](./LGPD.md)
 
 ```
 theroadsofar-api/
@@ -34,13 +31,6 @@ Admin padrão criado pelas migrações: `admin@theroadsofar.com.br` / `Admin@202
 
 ### DBeaver (banco local)
 
-| Campo | Valor |
-|---|---|
-| Host | `127.0.0.1` |
-| Porta | `3302` |
-| Banco | `theroadsofar` |
-| Usuário / senha | `trsf_user` / `trsf9180` (ou `root` / `trsf9180`) |
-
 Driver properties: `allowPublicKeyRetrieval=true` e `useSSL=false`.
 
 > Este projeto usa o mesmo nome de projeto Docker da versão antiga (`theroadsofar`), então o
@@ -59,17 +49,7 @@ Driver properties: `allowPublicKeyRetrieval=true` e `useSSL=false`.
 
 ## Variáveis de ambiente
 
-| Variável | Descrição |
-|---|---|
-| `NODE_ENV` | `development` ou `production` |
-| `PORT` | porta da API (padrão 3001) |
-| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD` | MySQL (`DB_USER` também é aceito) |
-| `JWT_SECRET`, `JWT_REFRESH_SECRET` | segredos diferentes, 48+ caracteres |
-| `JWT_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN` | padrão `15m` e `7d` |
-| `UPLOAD_DIR` | pasta dos uploads (em produção, fora de `public_html`) |
-| `PUBLIC_UPLOAD_URL` | endereço público dos uploads, ex.: `https://api.theroadsofar.com.br/uploads` |
-| `UPLOAD_MAX_SIZE_MB`, `UPLOAD_MAX_VIDEO_MB`, `UPLOAD_MAX_AUDIO_MB`, `UPLOAD_MAX_DOC_MB` | limites por tipo |
-| `CORS_ORIGINS` | domínios do blog + `http://localhost:3002` (estúdio) |
+
 
 Modelos: `.env.example` (local) e `.env.production.example` (Hostinger).
 
